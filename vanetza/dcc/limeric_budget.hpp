@@ -58,6 +58,7 @@ private:
     Clock::duration m_interval;
     Clock::time_point m_tx_start;
     Clock::duration m_tx_on;
+    int stationId;
 };
 
 } // namespace dcc

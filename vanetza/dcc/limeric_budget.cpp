@@ -3,6 +3,13 @@
 #include <vanetza/common/runtime.hpp>
 #include <chrono>
 #include <cmath>
+#include <vanetza/dcc/fot.hpp>
+
+// The following variables substitute an interface to the cross-layer DCC 
+// at the management entity that keeps track of the time to the next
+// transmission. The parts where they act are marked as FoT.
+int itsCounter = -1; //Keep track of the node id in the simulation
+vanetza::Clock::time_point fotArray[40000]; //Keep track of t_go
 
 namespace vanetza
 {
@@ -20,6 +27,8 @@ LimericBudget::LimericBudget(const DutyCyclePermit& dcp, const Runtime& rt) :
     m_interval(min_interval), m_tx_start(Clock::time_point::min()),
     m_tx_on(Clock::duration::zero())
 {
+    itsCounter++; // FoT
+    stationId = itsCounter; // FoT
     update();
 }
 
@@ -28,9 +37,14 @@ Clock::duration LimericBudget::delay()
     Clock::duration delay = Clock::duration::max();
     if (m_runtime.now() >= m_tx_start + m_interval) {
         delay = Clock::duration::zero();
+        fotArray[stationId] = m_runtime.now();
     } else {
         delay = m_tx_start + m_interval - m_runtime.now();
+        fotArray[stationId] = m_tx_start + m_interval; // FoT
     }
+
+    
+
     return delay;
 }
 

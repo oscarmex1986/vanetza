@@ -101,6 +101,8 @@ private:
     UnitInterval m_duty_cycle;
     boost::circular_buffer<ChannelLoad> m_cbr;
     Hook<const Limeric*, Clock::time_point> m_duty_cycle_change;
+
+    
 };
 
 } // namespace dcc
