@@ -1,5 +1,6 @@
 #ifndef ROUTER_HPP_UKYYCAR0
 #define ROUTER_HPP_UKYYCAR0
+#define Max(a, b)           (((a) > (b)) ? (a) : (b))
 
 #include <vanetza/common/byte_order.hpp>
 #include <vanetza/common/hook.hpp>
@@ -77,6 +78,8 @@ public:
     typedef std::unique_ptr<Pdu> PduPtr;
     typedef std::unique_ptr<DownPacket> DownPacketPtr;
     typedef std::unique_ptr<UpPacket> UpPacketPtr;
+
+    int flagCBF = 0;
 
     using PendingPacketForwarding = PendingPacket<GbcPdu, const MacAddress&>;
 
@@ -396,16 +399,6 @@ private:
     void pass_up(const DataIndication&, UpPacketPtr);
 
     /**
-     * \brief Decide if GBC packet shall be passed up to transport layer.
-     *
-     * \param within_destination is router located within destination area
-     * \param gbc GeoBroadcast header
-     *
-     * \return true if packet shall be passed up
-     */
-    bool decide_pass_up(bool within_destination, const GeoBroadcastHeader& gbc);
-
-    /**
      * \brief Helper method to handle duplicate addresses.
      * If own address collides with the address of a received packet
      * Router's address is set to a new random address.
@@ -426,6 +419,12 @@ private:
      */
     bool detect_duplicate_packet(const Address& source, SequenceNumber sn);
 
+
+    /*
+    OAM sustituto al memory
+    */
+    bool pending_passup(const Address& source, SequenceNumber sn);
+
     /**
      * \brief Determine next hop for greedy forwarding.
      * See EN 302 636-4-1 v1.3.1 Annex E.2
@@ -445,8 +444,7 @@ private:
      * \param sender optional sender MAC address (if not first hop)
      * \return next hop
      */
-    NextHop non_area_contention_based_forwarding(PendingPacketForwarding&&, const MacAddress* sender);
-
+    NextHop non_area_contention_based_forwarding_fot(PendingPacketForwarding&&, const MacAddress* sender);
     /**
      * \brief Determine next hop for area contention-based forwarding
      * See EN 302 636-4-1 v1.3.1 Annex F.3
@@ -456,8 +454,7 @@ private:
      * \param sender optional sender MAC address (if not first hop)
      * \return next hop
      */
-    NextHop area_contention_based_forwarding(PendingPacketForwarding&&, const MacAddress* sender);
-
+    NextHop area_contention_based_forwarding_fot(PendingPacketForwarding&&, const MacAddress* sender, const LinkLayer* ll);
     /**
      * \brief Determine CBF buffering time for a packet.
      * Complies to EN 302 636-4-1 v1.3.1 Annex E.3 (non-area CBF, eq. E.1) and F.3 (area CBF, eq. F.1)
@@ -466,7 +463,7 @@ private:
      * \return CBF time-out
      */
     units::Duration timeout_cbf(units::Length distance) const;
-
+    units::Duration timeout_scbf(units::Length distance) const;
     /**
      * \brief Determine (area) CBF buffering time for a packet from a sender
      *
@@ -479,7 +476,7 @@ private:
      * \return CBF time-out
      */
     units::Duration timeout_cbf(const MacAddress& sender) const;
-
+    units::Duration timeout_scbf(const MacAddress& sender) const;
     /**
      * \brief Determine next hop for area advanced forwarding
      * See EN 302 636-4-1 v1.3.1 Annex F.4
@@ -547,6 +544,10 @@ private:
     Repeater m_repeater;
     std::mt19937 m_random_gen;
     GbcMemory m_gbc_memory;
+
+    int routerId; // Keeps track of the nodes in the Artery simulation
+    units::Length distanceToSource;// S-FoT variable
+
 };
 
 /**

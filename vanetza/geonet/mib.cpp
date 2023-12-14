@@ -10,6 +10,8 @@ using namespace vanetza::units::si;
 using vanetza::units::degrees;
 using boost::units::si::kilo;
 using boost::units::si::milli;
+using vanetza::units::clock_cast;
+
 
 const auto milliseconds = milli * seconds;
 
@@ -22,7 +24,7 @@ ManagementInformationBase::ManagementInformationBase() :
     itsGnPaiInterval(80 * meters),
     itsGnMaxSduSize(1398),
     itsGnMaxGeoNetworkingHeaderSize(88),
-    itsGnLifetimeLocTE(20 * seconds),
+    itsGnLifetimeLocTE(20 * seconds), 
     itsGnSecurity(false),
     itsGnSnDecapResultHandling(SecurityDecapHandling::Strict),
     itsGnLocationServiceMaxRetrans(10),
@@ -31,14 +33,14 @@ ManagementInformationBase::ManagementInformationBase() :
     itsGnBeaconServiceRetransmitTimer(3 * seconds),
     itsGnBeaconServiceMaxJitter(itsGnBeaconServiceRetransmitTimer / 4.0),
     itsGnDefaultHopLimit(10),
-    itsGnDPLLength(8),
+    itsGnDPLLength(32),// Default 8
     itsGnMaxPacketLifetime(Lifetime::Base::Hundred_Seconds, 6),
-    itsGnDefaultPacketLifetime(Lifetime::Base::Ten_Seconds, 6),
-    itsGnMaxPacketDataRate(100),
+    itsGnDefaultPacketLifetime(Lifetime::Base::Ten_Seconds, 1),
+    itsGnMaxPacketDataRate(100), // 
     itsGnMaxPacketDataRateEmaBeta(0.9),
     itsGnMaxGeoAreaSize(10 * kilo * kilo * square_meters),
     itsGnMinPacketRepetitionInterval(100 * milliseconds),
-    itsGnNonAreaForwardingAlgorithm(UnicastForwarding::Greedy),
+    itsGnNonAreaForwardingAlgorithm(UnicastForwarding::Greedy), 
     itsGnAreaForwardingAlgorithm(BroadcastForwarding::CBF),
     itsGnCbfMinTime(1 * milliseconds),
     itsGnCbfMaxTime(100 * milliseconds),
@@ -54,8 +56,7 @@ ManagementInformationBase::ManagementInformationBase() :
     vanetzaDisableBeaconing(false),
     vanetzaMultiHopDuplicateAddressDetection(false),
     vanetzaFadingCbfCounter(false),
-    vanetzaFadingCbfCounterLifetime(4.0 * itsGnCbfMaxTime),
-    vanetzaNeighbourFlagExpiry(Clock::duration::zero()),
+    vanetzaNeighbourFlagExpiry(clock_cast(1000 * milliseconds)), // This drops old LocTEs
     vanetzaGbcMemoryCapacity(0)
 {
 }

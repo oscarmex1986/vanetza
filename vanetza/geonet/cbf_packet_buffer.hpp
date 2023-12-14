@@ -13,6 +13,9 @@
 #include <cstddef>
 #include <list>
 #include <memory>
+//OAM
+#include <vanetza/units/length.hpp>
+#include <vanetza/units/time.hpp>
 
 // forward declarations
 namespace vanetza
@@ -57,6 +60,10 @@ public:
      */
     SequenceNumber sequence_number() const;
 
+    uint8_t hop_limit() const;
+    Clock::time_point first_rec;
+    Clock::duration tout;
+    bool fot;
     /**
      * Reduce lifetime of buffered packet
      * \param d reduce lifetime by this duration
@@ -111,12 +118,18 @@ public:
      */
     bool remove(const Identifier& id);
 
+    bool remove_hopcount(const Identifier& id, uint8_t newHopCount);
+    bool remove_hopcount_distance(const Identifier& id, int flagRemove, Clock::duration newTimeout, Clock::duration maxTimeout);
+    bool remove_hopcount_distance_na(const Identifier& id, int flagRemove, Clock::duration newTimeout, Clock::duration maxTimeout);
+    void add_distance(CbfPacket&& packet, Clock::duration timeout, units::Length distance, const Identifier& cbf_id);
     /**
      * Update associated packet timer
      * \param id packet identification
      * \param timeout CBF timer expiration
      */
     void update(const Identifier& id, Clock::duration timeout);
+    void update_fot(const Identifier& id, Clock::duration timeout);
+
 
     /**
      * Fetch a packet from buffer.
@@ -146,6 +159,8 @@ public:
 
 private:
 
+    
+
     struct Timer
     {
         Timer(const Runtime&, Clock::duration timeout);
@@ -167,6 +182,7 @@ private:
      * Flush all expired packets
      */
     void flush();
+    
 
     /**
      * Remove timer from map and reschedule timer event if necessary
@@ -185,6 +201,7 @@ private:
      * \return true if packet remains valid, false if end of lifetime is reached
      */
     bool reduce_lifetime(const Timer&, CbfPacket&) const;
+    bool reduce_lifetime_fot(const Timer&, CbfPacket&) const;
 
     std::list<CbfPacket> m_packets;
     timer_bimap m_timers;
@@ -193,6 +210,10 @@ private:
     const std::size_t m_capacity_bytes;
     std::size_t m_stored_bytes;
     TimerCallback m_timer_callback;
+    Identifier lastPacket;
+    units::Length lastDistance;
+    int nodeCounter;
+
 };
 
 } // namespace geonet
