@@ -1,3 +1,15 @@
+# Vanetza fork for S-FoT+
+
+This is a fork for Vanetza that includes an implementation of S-FoT+.
+
+The proposal for S-FoT+ for Area Forwarding can be found in:
+
+Amador O, Soto I, Calderon M, Urueña M. Studying and improving the performance of ETSI ITS contention-based forwarding (CBF) in urban and highway scenarios: S-FoT+. Computer Networks. 2023 Jun 25:109899.
+[10.1016/j.comnet.2023.109899](https://doi.org/10.1016/j.comnet.2023.109899).
+
+The proposal for S-FoT+ for Non Area forwarding is under review in:
+Amador O, Calderon M, Urueña M, Soto I. Evaluation of Greedy and CBF for ETSI Non-Area GeoNetworking: The impact of DCC.
+
 # Vanetza
 
 Vanetza is an open-source implementation of the ETSI C-ITS protocol suite.
